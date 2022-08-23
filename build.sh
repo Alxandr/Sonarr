@@ -232,7 +232,6 @@ Package()
             ;;
         osx)
             PackageMacOS "$framework" "$runtime"
-            PackageMacOSApp "$framework" "$runtime"
             ;;
     esac
 }
