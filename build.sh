@@ -103,7 +103,11 @@ PackageFiles()
     mkdir -p $folder
     cp -r $outputFolder/$framework/$runtime/publish/* $folder
     cp -r $outputFolder/Sonarr.Update/$framework/$runtime/publish $folder/Sonarr.Update
-    cp -r $outputFolder/UI $folder
+    
+    if [ "$FRONTEND" = "YES" ];
+    then
+        cp -r $outputFolder/UI $folder
+    fi
 
     echo "Adding LICENSE"
     cp LICENSE.md $folder
