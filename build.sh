@@ -40,13 +40,6 @@ EnableBsdSupport()
     fi
 }
 
-SetExecutableBits()
-{
-    find . -name "ffprobe" -exec chmod a+x {} \;
-    find . -name "Sonarr" -exec chmod a+x {} \;
-    find . -name "Sonarr.Update" -exec chmod a+x {} \;
-}
-
 LintUI()
 {
     ProgressStart 'ESLint'
@@ -280,19 +273,26 @@ UploadArtifacts()
     for dir in $artifactsFolder/*
     do
         local runtime=$(basename "$dir")
-        local extension="tar.gz"
 
-        if [[ "$runtime" =~ win-|-app ]]; then
-            extension="zip"
-        fi
-
-        echo "##teamcity[publishArtifacts '$artifactsFolder/$runtime/$framework/** => Sonarr.$BRANCH.$BUILD_NUMBER.$runtime.$extension']"
+        echo "##teamcity[publishArtifacts '$artifactsFolder/$runtime/$framework/** => Sonarr.$BRANCH.$BUILD_NUMBER.$runtime.zip']"
     done
 
-    # Debian Package
+    # Debian Package / Windows installer / macOS app
     echo "##teamcity[publishArtifacts 'distribution/** => distribution.zip']"
 
     ProgressEnd 'Publishing Artifacts'
+}
+
+UploadUIArtifacts()
+{
+    local framework="$1"
+
+    ProgressStart 'Publishing UI Artifacts'
+
+    # UI folder
+    echo "##teamcity[publishArtifacts '$outputFolder/UI/** => UI.zip']"
+
+    ProgressEnd 'Publishing UI Artifacts'
 }
 
 # Use mono or .net depending on OS
@@ -397,12 +397,6 @@ then
     UploadTestArtifacts "net6.0"
 fi
 
-if [ "$FRONTEND" = "YES" ];
-then
-    YarnInstall
-    RunWebpack
-fi
-
 if [ "$LINT" = "YES" ];
 then
     if [ -z "$FRONTEND" ];
@@ -413,10 +407,16 @@ then
     LintUI
 fi
 
+if [ "$FRONTEND" = "YES" ];
+then
+    YarnInstall
+    RunWebpack
+    UploadUIArtifacts
+fi
+
 if [ "$PACKAGES" = "YES" ];
 then
     UpdateVersionNumber
-    SetExecutableBits
 
     if [[ -z "$RID" || -z "$FRAMEWORK" ]];
     then
