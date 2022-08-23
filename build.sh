@@ -278,7 +278,7 @@ UploadArtifacts()
     do
         local runtime=$(basename "$dir")
 
-        echo "##teamcity[publishArtifacts '$artifactsFolder/$runtime/$framework/** => Sonarr.$BRANCH.$BUILD_NUMBER.$runtime.zip']"
+        echo "##teamcity[publishArtifacts '$artifactsFolder/$runtime/$framework/** => Sonarr.$BRANCH.$SONARR_VERSION.$runtime.zip']"
     done
 
     # Debian Package / Windows installer / macOS app
